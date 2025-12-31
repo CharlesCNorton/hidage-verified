@@ -709,6 +709,90 @@ Proof.
 Qed.
 
 (* ========================================================================== *)
+(*                      GEOGRAPHIC COVERAGE                                   *)
+(* ========================================================================== *)
+
+(*
+   Alfred's strategic goal: no village more than 20 miles from a burh.
+   We encode coordinates (latitude, longitude as rationals) to verify coverage.
+
+   Coordinates from Wolfram Mathematica geographic database and OS data.
+   Latitude/longitude in decimal degrees * 10000 for rational arithmetic.
+*)
+
+Record GeoCoord := mkGeo {
+  geo_lat : Z;   (* latitude * 10000 *)
+  geo_lon : Z    (* longitude * 10000 *)
+}.
+
+(* Burh coordinates (lat * 10000, lon * 10000) *)
+Definition coord_winchester := mkGeo 510632 (-13085).
+Definition coord_wallingford := mkGeo 515983 (-11253).
+Definition coord_wareham := mkGeo 506833 (-21167).
+Definition coord_cricklade := mkGeo 516414 (-18579).
+Definition coord_oxford := mkGeo 517522 (-12560).
+Definition coord_bath := mkGeo 513794 (-23656).
+Definition coord_exeter := mkGeo 507000 (-35333).
+Definition coord_southampton := mkGeo 509025 (-14042).
+Definition coord_chichester := mkGeo 508365 (-7792).
+Definition coord_hastings := mkGeo 508600 5700.
+Definition coord_lewes := mkGeo 508741 121.
+Definition coord_shaftesbury := mkGeo 510056 (-21956).
+Definition coord_christchurch := mkGeo 507349 (-17779).
+Definition coord_bridport := mkGeo 507333 (-27167).
+Definition coord_watchet := mkGeo 511799 (-33306).
+Definition coord_axbridge := mkGeo 512871 (-28173).
+Definition coord_langport := mkGeo 510376 (-28280).
+Definition coord_malmesbury := mkGeo 515845 (-20982).
+Definition coord_buckingham := mkGeo 519983 (-9787).
+Definition coord_worcester := mkGeo 522000 (-22000).
+Definition coord_warwick := mkGeo 522833 (-15833).
+Definition coord_portchester := mkGeo 508400 (-11200).
+Definition coord_wilton := mkGeo 510800 (-18600).
+Definition coord_southwark := mkGeo 515000 (-900).
+Definition coord_eorpeburnan := mkGeo 510300 7300.
+Definition coord_burpham := mkGeo 508700 (-5500).
+Definition coord_chisbury := mkGeo 513700 (-15800).
+Definition coord_halwell := mkGeo 503300 (-37300).
+Definition coord_lydford := mkGeo 506500 (-40700).
+Definition coord_pilton := mkGeo 511300 (-26500).
+Definition coord_lyng := mkGeo 510700 (-29300).
+Definition coord_sashes := mkGeo 515600 (-7200).
+Definition coord_eashing := mkGeo 511800 (-6600).
+
+(*
+   Haversine distance approximation for small distances in UK:
+   At latitude 51°, 1 degree latitude ≈ 111 km, 1 degree longitude ≈ 70 km.
+   20 miles ≈ 32.2 km.
+
+   For full coverage proof, we would verify that for any point in Wessex,
+   at least one burh is within 20 miles. This requires defining Wessex
+   boundaries and checking distance to nearest burh.
+
+   Here we verify basic properties: burhs span significant area.
+*)
+
+(* Latitude range of burhs *)
+Definition min_lat : Z := 503300.  (* Halwell, southernmost *)
+Definition max_lat : Z := 522833.  (* Warwick, northernmost *)
+
+(* Longitude range of burhs *)
+Definition min_lon : Z := (-40700). (* Lydford, westernmost *)
+Definition max_lon : Z := 7300.     (* Eorpeburnan, easternmost *)
+
+(* The burh network spans approximately 2.0 degrees latitude *)
+Lemma lat_span : (max_lat - min_lat = 19533)%Z.
+Proof. reflexivity. Qed.
+
+(* At ~111 km per degree, this is about 217 km north-south *)
+
+(* The burh network spans approximately 4.8 degrees longitude *)
+Lemma lon_span : (max_lon - min_lon = 48000)%Z.
+Proof. reflexivity. Qed.
+
+(* At ~70 km per degree at this latitude, this is about 336 km east-west *)
+
+(* ========================================================================== *)
 (*                              REFERENCES                                    *)
 (* ========================================================================== *)
 
