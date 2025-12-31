@@ -16,6 +16,14 @@
 (*                                                                            *)
 (******************************************************************************)
 
+(*
+   TODO:
+   - Prove 20-mile coverage property with Haversine distance metric
+   - Unify Burh record with coordinates (single data structure)
+   - Derive error bounds from source measurement uncertainty
+   - Investigate military basis for 4-men-per-pole ratio (or is it purely fiscal?)
+*)
+
 Require Import Coq.Arith.Arith.
 Require Import Coq.Lists.List.
 Require Import Coq.Strings.String.
@@ -836,6 +844,12 @@ Proof. reflexivity. Qed.
        "A king's raw materials and instruments of rule are a
        well-peopled land, and he must have men of prayer, men of war,
        and men of work."
+
+   Geographic Data:
+
+   [10] Burh coordinates obtained via Wolfram Mathematica 14.0
+        geographic entity database, queried December 2025. Smaller
+        settlements not in database approximated from Ordnance Survey.
 *)
 
 (* ========================================================================== *)
