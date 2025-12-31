@@ -20,6 +20,7 @@ Require Import Coq.Arith.Arith.
 Require Import Coq.Lists.List.
 Require Import Coq.Strings.String.
 Require Import Coq.QArith.QArith.
+Require Import Coq.QArith.Qabs.
 Require Import Coq.QArith.Qround.
 Require Import Lia.
 Import ListNotations.
@@ -513,6 +514,94 @@ Proof.
   unfold hides_to_metres, winchester.
   simpl.
   reflexivity.
+Qed.
+
+(* ========================================================================== *)
+(*                    GENERAL ARCHAEOLOGICAL VERIFICATION                     *)
+(* ========================================================================== *)
+
+(* Extract burhs with archaeological measurements *)
+Definition has_measurement (b : Burh) : bool :=
+  match burh_measured_metres b with
+  | Some _ => true
+  | None => false
+  end.
+
+Definition measured_burhs : list Burh :=
+  filter has_measurement all_burhs.
+
+(* We have 4 burhs with measurements *)
+Lemma measured_burhs_count : List.length measured_burhs = 4%nat.
+Proof. reflexivity. Qed.
+
+(* Prediction error for a burh (returns 0 if no measurement) *)
+Definition prediction_error (b : Burh) : Q :=
+  match burh_measured_metres b with
+  | Some measured =>
+      let predicted := predicted_wall_metres b in
+      Qabs (predicted - measured) / measured
+  | None => 0
+  end.
+
+(* 10% error threshold *)
+Definition within_10_percent (b : Burh) : Prop :=
+  prediction_error b <= (1 # 10).
+
+(* Winchester: 2400 hides -> 3017m predicted, 3000m measured *)
+(* Error = |3017.52 - 3000| / 3000 = 17.52/3000 ≈ 0.58% < 10% *)
+Lemma winchester_within_10 : within_10_percent winchester.
+Proof.
+  unfold within_10_percent, prediction_error, winchester.
+  unfold predicted_wall_metres, hides_to_metres.
+  unfold hides_per_pole, men_per_pole, hides_per_man, metres_per_pole.
+  simpl. unfold Qabs, Qle. simpl.
+  lia.
+Qed.
+
+(* Wallingford: 2400 hides -> 3017m predicted, 2700m measured *)
+(* Error = |3017.52 - 2700| / 2700 = 317.52/2700 ≈ 11.7% < 15% *)
+Lemma wallingford_error : prediction_error wallingford < (15 # 100).
+Proof.
+  unfold prediction_error, wallingford.
+  unfold predicted_wall_metres, hides_to_metres.
+  unfold hides_per_pole, men_per_pole, hides_per_man, metres_per_pole.
+  simpl. unfold Qabs, Qlt. simpl.
+  lia.
+Qed.
+
+(* Wareham: 1600 hides -> 2011.68m predicted, 2012m measured *)
+(* Error = |2011.68 - 2012| / 2012 ≈ 0.016% < 10% *)
+Lemma wareham_within_10 : within_10_percent wareham.
+Proof.
+  unfold within_10_percent, prediction_error, wareham.
+  unfold predicted_wall_metres, hides_to_metres.
+  unfold hides_per_pole, men_per_pole, hides_per_man, metres_per_pole.
+  simpl. unfold Qabs, Qle. simpl.
+  lia.
+Qed.
+
+(* Cricklade: 1500 hides -> 1886m predicted, 2073m measured *)
+(* Error = |1886 - 2073| / 2073 = 187/2073 ≈ 9.0% < 10% *)
+Lemma cricklade_within_10 : within_10_percent cricklade.
+Proof.
+  unfold within_10_percent, prediction_error, cricklade.
+  unfold predicted_wall_metres, hides_to_metres.
+  unfold hides_per_pole, men_per_pole, hides_per_man, metres_per_pole.
+  simpl. unfold Qabs, Qle. simpl.
+  lia.
+Qed.
+
+(* Summary: 3 of 4 measured burhs within 10%, all within 15% *)
+Theorem archaeological_correlation :
+  within_10_percent winchester /\
+  within_10_percent wareham /\
+  within_10_percent cricklade /\
+  prediction_error wallingford < (15 # 100).
+Proof.
+  split; [exact winchester_within_10 |].
+  split; [exact wareham_within_10 |].
+  split; [exact cricklade_within_10 |].
+  exact wallingford_error.
 Qed.
 
 (* ========================================================================== *)
