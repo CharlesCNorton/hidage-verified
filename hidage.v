@@ -605,6 +605,110 @@ Proof.
 Qed.
 
 (* ========================================================================== *)
+(*                         MANUSCRIPT VARIATION                               *)
+(* ========================================================================== *)
+
+(*
+   The Burghal Hidage survives in two main recensions:
+   - Version A: Nowell's 1562 transcript of Cotton Otho B.xi (c. 1025, lost 1731)
+   - Version B: Six manuscripts copied between c. 1210 and c. 1330
+
+   Some hidage values differ between versions. We model this as intervals.
+*)
+
+(* Hidage interval: [low, high] *)
+Record HidageInterval := mkInterval {
+  interval_low : nat;
+  interval_high : nat
+}.
+
+(* Key disputed values between A and B recensions *)
+Definition oxford_interval := mkInterval 1300 1500.    (* A: 1400, B: varies 1300-1500 *)
+Definition cricklade_interval := mkInterval 1400 1500. (* A: 1400, B: 1500 *)
+Definition eashing_interval := mkInterval 500 600.     (* A: 600, B: 500 *)
+
+(* A value is within an interval *)
+Definition in_interval (n : nat) (i : HidageInterval) : Prop :=
+  (interval_low i <= n <= interval_high i)%nat.
+
+(* Our chosen values are within the documented intervals *)
+Lemma oxford_in_range : in_interval (burh_hides oxford) oxford_interval.
+Proof.
+  unfold in_interval, oxford, oxford_interval. simpl. lia.
+Qed.
+
+Lemma cricklade_in_range : in_interval (burh_hides cricklade) cricklade_interval.
+Proof.
+  unfold in_interval, cricklade, cricklade_interval. simpl. lia.
+Qed.
+
+Lemma eashing_in_range : in_interval (burh_hides eashing) eashing_interval.
+Proof.
+  unfold in_interval, eashing, eashing_interval. simpl. lia.
+Qed.
+
+(* Wall length range from hidage interval *)
+Definition wall_range (i : HidageInterval) : Q * Q :=
+  (hides_to_metres (Z.of_nat (interval_low i) # 1),
+   hides_to_metres (Z.of_nat (interval_high i) # 1)).
+
+(* Oxford's predicted wall ranges from ~1635m to ~1886m *)
+Definition oxford_wall_range := wall_range oxford_interval.
+
+(* ========================================================================== *)
+(*                          HIDE CONSTRAINTS                                  *)
+(* ========================================================================== *)
+
+(*
+   The hide as a fiscal/military unit has structural constraints:
+   - Positive: A burh must have at least 1 hide
+   - Bounded: No burh exceeds a practical maximum (~2400 in the record)
+   - Divisibility: Many assessments are round numbers (multiples of 100)
+*)
+
+(* Well-formedness predicate for a burh *)
+Definition wf_burh (b : Burh) : Prop :=
+  (burh_hides b > 0)%nat /\ (burh_hides b <= 2400)%nat.
+
+(* All burhs are well-formed *)
+Theorem all_burhs_wf : Forall wf_burh all_burhs.
+Proof.
+  unfold wf_burh, all_burhs.
+  repeat (constructor; [simpl; lia |]). constructor; simpl; lia.
+Qed.
+
+(* Count burhs with round-number assessments (divisible by 100) *)
+Definition is_round (n : nat) : bool := (n mod 100 =? 0)%nat.
+
+Definition round_burhs : list Burh := filter (fun b => is_round (burh_hides b)) all_burhs.
+
+(* Examples of round-number burhs *)
+Lemma winchester_round : is_round (burh_hides winchester) = true.
+Proof. reflexivity. Qed.
+
+Lemma wareham_round : is_round (burh_hides wareham) = true.
+Proof. reflexivity. Qed.
+
+Lemma bath_round : is_round (burh_hides bath) = true.
+Proof. reflexivity. Qed.
+
+(* Example of non-round burh *)
+Lemma watchet_not_round : is_round (burh_hides watchet) = false.
+Proof. reflexivity. Qed.
+
+(* The formula preserves positivity: positive hides -> positive wall length *)
+(* All conversion constants are positive, so positive input yields positive output *)
+Lemma hides_per_pole_positive : hides_per_pole > 0.
+Proof.
+  unfold hides_per_pole, men_per_pole, hides_per_man. reflexivity.
+Qed.
+
+Lemma metres_per_pole_positive : metres_per_pole > 0.
+Proof.
+  unfold metres_per_pole. reflexivity.
+Qed.
+
+(* ========================================================================== *)
 (*                              REFERENCES                                    *)
 (* ========================================================================== *)
 
