@@ -18,8 +18,13 @@
 
 (*
    TODO:
-   - Derive error bounds from source measurement uncertainty
-   - Investigate military basis for 4-men-per-pole ratio (or is it purely fiscal?)
+   - Model excavation uncertainty (±10-50m) and prove correlation robust to it
+   - Investigate military basis for 4-men-per-pole (defensive doctrine vs fiscal convenience)
+   - Encode manuscript stemma (A/B recension transmission history per Hill 1969)
+   - Connect hide to land assessment (Domesday relationship, agricultural basis)
+   - Model road networks for coverage (cf. Baker & Brookes 2013 GIS analysis)
+   - Formalize strategic context: Viking threat model, response time constraints
+   - Prove coverage under terrain/travel-time metric, not just Euclidean distance
 *)
 
 Require Import Coq.Arith.Arith.
@@ -994,6 +999,19 @@ Qed.
    [10] Burh coordinates obtained via Wolfram Mathematica 14.0
         geographic entity database, queried December 2025. Smaller
         settlements not in database approximated from Ordnance Survey.
+
+   Further Reading:
+
+   [11] Baker, J. and Brookes, S. Beyond the Burghal Hidage:
+        Anglo-Saxon Civil Defence in the Viking Age. Brill, 2013.
+        (GIS-based analysis of burh spacing and travel times)
+
+   [12] Abels, R. Lordship and Military Obligation in Anglo-Saxon
+        England. University of California Press, 1988.
+        (Fyrd organization and military service)
+
+   [13] Lavelle, R. Alfred's Wars: Sources and Interpretations of
+        Anglo-Saxon Warfare in the Viking Age. Boydell, 2010.
 *)
 
 (* ========================================================================== *)
