@@ -19,7 +19,6 @@
 (*
    TODO:
    - Prove 20-mile coverage property with Haversine distance metric
-   - Unify Burh record with coordinates (single data structure)
    - Derive error bounds from source measurement uncertainty
    - Investigate military basis for 4-men-per-pole ratio (or is it purely fiscal?)
 *)
@@ -106,47 +105,55 @@ Definition metres_to_hides (metres : Q) : Q :=
 (*                              BURH RECORDS                                  *)
 (* ========================================================================== *)
 
-(* A burh record contains name, hidage, and optional measured wall length *)
+(* Geographic coordinate: latitude and longitude * 10000 for integer arithmetic *)
+Record GeoCoord := mkGeo {
+  geo_lat : Z;   (* latitude * 10000 *)
+  geo_lon : Z    (* longitude * 10000 *)
+}.
+
+(* A burh record contains name, hidage, coordinates, and optional measured wall *)
 Record Burh := mkBurh {
   burh_name : string;
   burh_hides : nat;
+  burh_coord : GeoCoord;
   burh_measured_metres : option Q  (* Archaeological measurement if known *)
 }.
 
 (* The 33 burhs of the Burghal Hidage, listed clockwise around Wessex *)
-Definition eorpeburnan := mkBurh "Eorpeburnan" 324 None.
-Definition hastings := mkBurh "Hastings" 500 None.
-Definition lewes := mkBurh "Lewes" 1300 None.
-Definition burpham := mkBurh "Burpham" 720 None.
-Definition chichester := mkBurh "Chichester" 1500 None.  (* Roman reuse *)
-Definition portchester := mkBurh "Portchester" 500 None.
-Definition southampton := mkBurh "Southampton" 150 None.
-Definition winchester := mkBurh "Winchester" 2400 (Some (3000 # 1)). (* ~3000m measured, within 1% *)
-Definition wilton := mkBurh "Wilton" 1400 None.
-Definition chisbury := mkBurh "Chisbury" 700 None.
-Definition shaftesbury := mkBurh "Shaftesbury" 700 None.  (* B manuscripts *)
-Definition christchurch := mkBurh "Christchurch" 470 None.  (* "500 less 30" *)
-Definition wareham := mkBurh "Wareham" 1600 (Some (2012 # 1)). (* ~2012m, 3 sides measured *)
-Definition bridport := mkBurh "Bridport" 760 None.  (* "800 less 40" *)
-Definition exeter := mkBurh "Exeter" 734 None.  (* Roman reuse, "34 and 700" *)
-Definition halwell := mkBurh "Halwell" 300 None.
-Definition lydford := mkBurh "Lydford" 140 None.  (* "150 less 10" *)
-Definition pilton := mkBurh "Pilton" 360 None.  (* "400 less 40" *)
-Definition watchet := mkBurh "Watchet" 513 None.  (* "500 and 13" *)
-Definition axbridge := mkBurh "Axbridge" 400 None.
-Definition lyng := mkBurh "Lyng" 100 None.  (* Smallest *)
-Definition langport := mkBurh "Langport" 600 None.
-Definition bath := mkBurh "Bath" 1000 None.
-Definition malmesbury := mkBurh "Malmesbury" 1200 None.
-Definition cricklade := mkBurh "Cricklade" 1500 (Some (2073 # 1)). (* ~2073m measured *)
-Definition oxford := mkBurh "Oxford" 1400 None.  (* 1300-1500 disputed *)
-Definition wallingford := mkBurh "Wallingford" 2400 (Some (2700 # 1)). (* ~2700m measured *)
-Definition buckingham := mkBurh "Buckingham" 1600 None.  (* Mercian *)
-Definition sashes := mkBurh "Sashes" 1000 None.
-Definition eashing := mkBurh "Eashing" 600 None.
-Definition southwark := mkBurh "Southwark" 1800 None.
-Definition worcester := mkBurh "Worcester" 1200 None.  (* B appendix *)
-Definition warwick := mkBurh "Warwick" 2400 None.  (* B appendix *)
+(* Coordinates: lat*10000, lon*10000 from Wolfram Mathematica / OS data *)
+Definition eorpeburnan := mkBurh "Eorpeburnan" 324 (mkGeo 510300 7300) None.
+Definition hastings := mkBurh "Hastings" 500 (mkGeo 508600 5700) None.
+Definition lewes := mkBurh "Lewes" 1300 (mkGeo 508741 121) None.
+Definition burpham := mkBurh "Burpham" 720 (mkGeo 508700 (-5500)) None.
+Definition chichester := mkBurh "Chichester" 1500 (mkGeo 508365 (-7792)) None.
+Definition portchester := mkBurh "Portchester" 500 (mkGeo 508400 (-11200)) None.
+Definition southampton := mkBurh "Southampton" 150 (mkGeo 509025 (-14042)) None.
+Definition winchester := mkBurh "Winchester" 2400 (mkGeo 510632 (-13085)) (Some (3000 # 1)).
+Definition wilton := mkBurh "Wilton" 1400 (mkGeo 510800 (-18600)) None.
+Definition chisbury := mkBurh "Chisbury" 700 (mkGeo 513700 (-15800)) None.
+Definition shaftesbury := mkBurh "Shaftesbury" 700 (mkGeo 510056 (-21956)) None.
+Definition christchurch := mkBurh "Christchurch" 470 (mkGeo 507349 (-17779)) None.
+Definition wareham := mkBurh "Wareham" 1600 (mkGeo 506833 (-21167)) (Some (2012 # 1)).
+Definition bridport := mkBurh "Bridport" 760 (mkGeo 507333 (-27167)) None.
+Definition exeter := mkBurh "Exeter" 734 (mkGeo 507000 (-35333)) None.
+Definition halwell := mkBurh "Halwell" 300 (mkGeo 503300 (-37300)) None.
+Definition lydford := mkBurh "Lydford" 140 (mkGeo 506500 (-40700)) None.
+Definition pilton := mkBurh "Pilton" 360 (mkGeo 511300 (-26500)) None.
+Definition watchet := mkBurh "Watchet" 513 (mkGeo 511799 (-33306)) None.
+Definition axbridge := mkBurh "Axbridge" 400 (mkGeo 512871 (-28173)) None.
+Definition lyng := mkBurh "Lyng" 100 (mkGeo 510700 (-29300)) None.
+Definition langport := mkBurh "Langport" 600 (mkGeo 510376 (-28280)) None.
+Definition bath := mkBurh "Bath" 1000 (mkGeo 513794 (-23656)) None.
+Definition malmesbury := mkBurh "Malmesbury" 1200 (mkGeo 515845 (-20982)) None.
+Definition cricklade := mkBurh "Cricklade" 1500 (mkGeo 516414 (-18579)) (Some (2073 # 1)).
+Definition oxford := mkBurh "Oxford" 1400 (mkGeo 517522 (-12560)) None.
+Definition wallingford := mkBurh "Wallingford" 2400 (mkGeo 515983 (-11253)) (Some (2700 # 1)).
+Definition buckingham := mkBurh "Buckingham" 1600 (mkGeo 519983 (-9787)) None.
+Definition sashes := mkBurh "Sashes" 1000 (mkGeo 515600 (-7200)) None.
+Definition eashing := mkBurh "Eashing" 600 (mkGeo 511800 (-6600)) None.
+Definition southwark := mkBurh "Southwark" 1800 (mkGeo 515000 (-900)) None.
+Definition worcester := mkBurh "Worcester" 1200 (mkGeo 522000 (-22000)) None.
+Definition warwick := mkBurh "Warwick" 2400 (mkGeo 522833 (-15833)) None.
 
 (* Complete list of all 33 burhs *)
 Definition all_burhs : list Burh := [
@@ -722,71 +729,24 @@ Qed.
 
 (*
    Alfred's strategic goal: no village more than 20 miles from a burh.
-   We encode coordinates (latitude, longitude as rationals) to verify coverage.
+   Coordinates are now embedded in each Burh record (burh_coord field).
 
-   Coordinates from Wolfram Mathematica geographic database and OS data.
-   Latitude/longitude in decimal degrees * 10000 for rational arithmetic.
-*)
-
-Record GeoCoord := mkGeo {
-  geo_lat : Z;   (* latitude * 10000 *)
-  geo_lon : Z    (* longitude * 10000 *)
-}.
-
-(* Burh coordinates (lat * 10000, lon * 10000) *)
-Definition coord_winchester := mkGeo 510632 (-13085).
-Definition coord_wallingford := mkGeo 515983 (-11253).
-Definition coord_wareham := mkGeo 506833 (-21167).
-Definition coord_cricklade := mkGeo 516414 (-18579).
-Definition coord_oxford := mkGeo 517522 (-12560).
-Definition coord_bath := mkGeo 513794 (-23656).
-Definition coord_exeter := mkGeo 507000 (-35333).
-Definition coord_southampton := mkGeo 509025 (-14042).
-Definition coord_chichester := mkGeo 508365 (-7792).
-Definition coord_hastings := mkGeo 508600 5700.
-Definition coord_lewes := mkGeo 508741 121.
-Definition coord_shaftesbury := mkGeo 510056 (-21956).
-Definition coord_christchurch := mkGeo 507349 (-17779).
-Definition coord_bridport := mkGeo 507333 (-27167).
-Definition coord_watchet := mkGeo 511799 (-33306).
-Definition coord_axbridge := mkGeo 512871 (-28173).
-Definition coord_langport := mkGeo 510376 (-28280).
-Definition coord_malmesbury := mkGeo 515845 (-20982).
-Definition coord_buckingham := mkGeo 519983 (-9787).
-Definition coord_worcester := mkGeo 522000 (-22000).
-Definition coord_warwick := mkGeo 522833 (-15833).
-Definition coord_portchester := mkGeo 508400 (-11200).
-Definition coord_wilton := mkGeo 510800 (-18600).
-Definition coord_southwark := mkGeo 515000 (-900).
-Definition coord_eorpeburnan := mkGeo 510300 7300.
-Definition coord_burpham := mkGeo 508700 (-5500).
-Definition coord_chisbury := mkGeo 513700 (-15800).
-Definition coord_halwell := mkGeo 503300 (-37300).
-Definition coord_lydford := mkGeo 506500 (-40700).
-Definition coord_pilton := mkGeo 511300 (-26500).
-Definition coord_lyng := mkGeo 510700 (-29300).
-Definition coord_sashes := mkGeo 515600 (-7200).
-Definition coord_eashing := mkGeo 511800 (-6600).
-
-(*
    Haversine distance approximation for small distances in UK:
    At latitude 51°, 1 degree latitude ≈ 111 km, 1 degree longitude ≈ 70 km.
    20 miles ≈ 32.2 km.
-
-   For full coverage proof, we would verify that for any point in Wessex,
-   at least one burh is within 20 miles. This requires defining Wessex
-   boundaries and checking distance to nearest burh.
-
-   Here we verify basic properties: burhs span significant area.
 *)
 
+(* Extract latitude from a burh *)
+Definition burh_lat (b : Burh) : Z := geo_lat (burh_coord b).
+Definition burh_lon (b : Burh) : Z := geo_lon (burh_coord b).
+
 (* Latitude range of burhs *)
-Definition min_lat : Z := 503300.  (* Halwell, southernmost *)
-Definition max_lat : Z := 522833.  (* Warwick, northernmost *)
+Definition min_lat : Z := burh_lat halwell.   (* Southernmost *)
+Definition max_lat : Z := burh_lat warwick.   (* Northernmost *)
 
 (* Longitude range of burhs *)
-Definition min_lon : Z := (-40700). (* Lydford, westernmost *)
-Definition max_lon : Z := 7300.     (* Eorpeburnan, easternmost *)
+Definition min_lon : Z := burh_lon lydford.   (* Westernmost *)
+Definition max_lon : Z := burh_lon eorpeburnan. (* Easternmost *)
 
 (* The burh network spans approximately 2.0 degrees latitude *)
 Lemma lat_span : (max_lat - min_lat = 19533)%Z.
